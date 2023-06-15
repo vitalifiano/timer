@@ -1,0 +1,170 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+
+        body {
+            background:linear-gradient(#50C878,#00A86B,#50C878);
+            border: 12px solid black;
+            border-style:double;
+            border-radius:10%;
+            font-family:sans-serif;
+        }
+
+
+
+
+        p {
+
+
+            padding:25px;
+            text-align:center;
+            font-size:35px;
+
+
+        }
+
+        h2 {
+
+            text-align:center;
+            font-size:35px;
+
+
+        }
+
+
+        h1 {
+            
+            padding:25px;
+            width:50%;
+            margin:auto;
+            margin-top:7.5vh;
+            text-align:center;
+            border: 9px solid black;
+            border-style:double;
+            background-color:#00A86B;
+            color:black;
+            font-size:22px;
+        }
+
+
+
+    </style>
+</head>
+<body>
+
+
+
+    <h1>Time Remaining</h1>
+    <!-- Countdown Timer -->
+    <p id="countdown"></p>
+    <!-- Live Clock -->
+    <h1>Clock</h1>
+    <p id="clock"></p>
+    <!-- Current Date -->
+    <h1>Date</h1>
+    <p id="date"></p>
+
+    <script>
+
+        // Target times array
+        var targetTimes = [
+            { hour: 8, minute: 30 },
+            { hour: 8, minute: 45 },
+            { hour: 9, minute: 50 },
+            { hour: 10, minute: 5 },
+            { hour: 11, minute: 15 },
+            { hour: 11, minute: 55 },
+            { hour: 12, minute: 10 },
+            { hour: 13, minute: 20 },
+            { hour: 13, minute: 35 },
+            { hour: 14, minute: 50 }
+        ];
+
+        // Function to update the countdown, clock, and date
+        function updateCountdown() {
+            var countdownElement = document.getElementById("countdown");
+            var clockElement = document.getElementById("clock");
+            var dateElement = document.getElementById("date");
+
+            // Calculate the time difference between the target time and current time
+            var now = new Date();
+            var currentTime = now.getTime();
+            var closestTime;
+            var closestDiff = Infinity;
+
+            // Find the closest target time
+            for (var i = 0; i < targetTimes.length; i++) {
+                var targetTime = targetTimes[i];
+                var targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), targetTime.hour, targetTime.minute).getTime();
+                var timeDiff = targetDate - currentTime;
+
+                if (timeDiff > 0 && timeDiff < closestDiff) {
+                    closestTime = targetTime;
+                    closestDiff = timeDiff;
+                }
+            }
+
+            // If there is no closest target time, display "EXPIRED"
+            if (!closestTime) {
+                countdownElement.innerHTML = "EXPIRED";
+                return;
+            }
+
+            // Calculate the hours, minutes, and seconds remaining in the countdown
+            var hours = Math.floor(closestDiff / (1000 * 60 * 60));
+            var minutes = Math.floor((closestDiff % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((closestDiff % (1000 * 60)) / 1000);
+
+            // Update the countdown element with the remaining time
+            var countdownText = "";
+            if (hours > 0) {
+                countdownText += hours + "h ";
+            }
+            countdownText += minutes + "m " + seconds + "s";
+            countdownElement.innerHTML = countdownText;
+
+            // Get the current time and format it
+            var formattedTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            // Check if the live clock has reached the closest target time
+            if (hours === 0 && minutes === closestTime.minute && seconds === 0) {
+                countdownElement.innerHTML = "EXPIRED";
+
+                if (closestTime.hour === 8 && closestTime.minute === 30) {
+                    closestDiff = 15 * 60 * 1000; // 15 minutes
+                    targetTimes.push({ hour: 8, minute: 45 });
+                } else if (closestTime.hour === 11 && closestTime.minute === 15) {
+                    closestDiff = 40 * 60 * 1000; // 40 minutes
+                } else {
+                    closestDiff = 15 * 60 * 1000; // 15 minutes
+                }
+
+                // Set the next target time to be 15 minutes from the current time
+                var nextTargetTime = new Date(now.getTime() + closestDiff);
+                targetTimes.push({ hour: nextTargetTime.getHours(), minute: nextTargetTime.getMinutes() });
+            }
+
+            // Update the clock element with the current time
+            clockElement.innerHTML = formattedTime;
+
+            // Get the current date and format it
+            var formattedDate = now.toLocaleDateString();
+
+            // Update the date element with the current date
+            dateElement.innerHTML = formattedDate;
+        }
+
+        // Interval to update the countdown, clock, and date every second
+        var countdownInterval = setInterval(function() {
+            updateCountdown();
+        }, 1000);
+
+        // Initial update of the countdown, clock, and date
+        updateCountdown();
+    </script>
+
+
+
+</body>
+</html>
